@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.parsers import FormParser, MultiPartParser
 from teachers.models import Teacher
 from teachers import serializers
@@ -47,6 +47,13 @@ class TeacherViewset(viewsets.ModelViewSet):
         if self.action == 'upload_bulk':
             return serializers.TeacherDataSerializer
         return self.serializer_class
+
+    def get_permissions(self):
+        if self.action in ['list', 'create']:
+            self.permission_classes = (AllowAny, )
+        else :
+            self.permission_classes = (IsAuthenticated, )
+        return super().get_permissions()
 
     @action(detail=False, methods=['POST'], url_path='upload-bulk')
     def upload_bulk(self, request, pk=None):
